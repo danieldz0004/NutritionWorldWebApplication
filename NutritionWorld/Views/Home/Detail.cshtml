@@ -1,0 +1,158 @@
+﻿@model NutritionWorld.Models.ReserveViewModel
+@{
+    ViewBag.Title = "Detail";
+}
+
+<div class="jumbotron" style="height:300px;background-image:url('@ViewBag.restModel.Photo_Path');color:#fff;background-repeat: no-repeat;">
+    <h1>@ViewBag.restModel.Name</h1>
+</div>
+
+<div class="row">
+    <h2>Special dishes</h2>
+    @foreach (var dish in ViewBag.dishesModel)
+    {
+        <div class="col-md-2" title="@dish.DishesName">
+            <h3>@dish.DishesName</h3>
+            <div class="specialImg" style="background-image:url('@dish.PhotoPath');"></div>
+            <div style="height:20px;width:1px;"></div>
+        </div>
+    }
+</div>
+@*-------------Reserve--------------*@
+<div class="row">
+    <div class="col-md-12">
+        <h3>Reserve</h3>
+        <div id="reserve">
+            <h4 style="display:inline;">Choose a time:</h4>
+            @Html.TextBoxFor(m => m.ReserveDate, new { @id = "time", @class = "form-control", @placeholder = "More than today", @style = "display:inline;", @autocomplete = "off" })
+            <input type="button" onclick="veri()" class="btn btn-default" value="Reserve" /><span id="error" style='color:red;display:none;'>Please choose the correct date.</span>
+            
+            <h4 id="retMsg"></h4>
+        </div>
+    </div>
+</div>
+@*-------------Address--------------*@
+<div class="row">
+    <div class="col-md-12">
+        <h3>Address</h3>
+        <h4 style="display: inline;">@ViewBag.restModel.Address</h4>
+        <a class="btn btn-default" href="/Home/Map?name=@ViewBag.restModel.Name">Go here</a>
+    </div>
+</div>
+<hr />
+@*-------------Comment--------------*@
+<div class="row">
+    <h2>Comment on @ViewBag.restModel.Name</h2>
+    <textarea id="comment" rows="3"></textarea><br />
+    <input type="button" class="btn btn-default" value="Submit" onclick="comment()" />
+    <span id="comResult"></span>
+    <h2>Comments</h2>
+    <div id="comList"></div>
+</div>
+
+<style>
+    #comment {
+        resize:none;
+        font-size:15px;
+        width:100%;
+        line-height:20px;
+        margin:10px 0px 20px 0px;
+        border-radius: 4px;
+        padding:5px;
+    }
+    .specialImg {
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        width: 100%;
+        height: 120px;
+        border-radius: 6px;
+    }
+    #retMsg {
+        display: inline;
+    }
+    .col-md-2:hover {
+        box-shadow: 0 0 2px 5px #ccc;
+    }
+</style>
+@section Scripts {
+@Scripts.Render("~/bundles/datepicker")
+    <script>
+        window.onload = function(){
+            getCom();
+        }
+
+        function getCom(){
+            $.ajax({
+                type: "get",
+                url: "/Home/GetComments",
+                data: { "restId" : @ViewBag.restModel.Id },
+                success: function (data, status) {
+                    $("#comList").empty();
+                    $.each(data, function(index, info){
+                        $("#comList").append("<hr /><div class=\"col-md-12\"><h4 style=\"display:inline;\">" + info["UserName"] + " said : </h4><h5 style=\"display:inline;\">" + info["Comment"] + ".</h5>");
+                    })
+                }
+            });
+        }
+
+        function comment(){
+            var txt = document.getElementById("comment").value;
+            if (txt == "") {
+                document.getElementById("comResult").innerText = "Please input comment.";
+            }
+            else {
+                document.getElementById("comResult").innerText = ""
+                $.ajax({
+                    type: "get",
+                    async: true,
+                    url: "/Home/Comment",
+                    data: { "restId" : @ViewBag.restModel.Id, "comment": txt },
+                    success: function (data, status) {
+                        document.getElementById("comResult").innerText = data;
+                        document.getElementById("comment").value = "";
+                        getCom();
+                    }
+                });
+            }
+        }
+
+        function veri() {
+            var o = document.getElementById("time");
+            if (o.value == "") {
+                $("#error").show();
+                return;
+            }
+            var resDate = new Date(o.value).getTime();
+            var today = new Date().getTime();
+
+            if (resDate < today) {
+                o.value = "";
+                $("#error").show();
+            }
+            else {
+                document.getElementById("retMsg").innerText = "";
+
+                $("#error").hide();
+                var mod = { RestId : @ViewBag.restModel.Id, RestName : "@ViewBag.restModel.Name", ReserveDate : o.value };
+                $.ajax({
+                    type: "post",
+                    url: "/api/NutrApi",
+                    data: mod,
+                    success: function (data) {
+                        document.getElementById("retMsg").innerText = data;
+                    }
+                });
+                @*$.ajax({
+                    type: "get",
+                    url: "/api/NutrApi",
+                    data: { "restId" : @ViewBag.restModel.Id, "restName" : "@ViewBag.restModel.Name" , "reserveDate": o.value },
+                    success: function (data) {
+                        document.getElementById("retMsg").innerText = data;
+                    }
+                });*@
+            }
+        }
+
+        $("#time").datepicker({ format: "yyyy/mm/dd" });
+    </script>
+}

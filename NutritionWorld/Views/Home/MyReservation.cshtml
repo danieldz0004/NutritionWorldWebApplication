@@ -1,0 +1,93 @@
+﻿
+@{
+    ViewBag.Title = "MyReservation";
+}
+
+<br />
+<div id="local">
+    
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/fullcalendar")
+    <script>
+        //load calendar view
+        window.onload = function () {
+            $.ajax({
+                type: "get",
+                async: false,
+                url: "/Home/Reservation",
+                success: function (data) {
+                    $("#local").html(data);
+                }
+            });
+
+            calendar();
+        }
+
+        // set up calendar
+        function calendar() {
+            $('#calendar').fullCalendar({
+                locale: 'au',
+                eventClick: function (eventObj) {
+                    if (eventObj.title == "Click Cancel") {
+                        if (confirm("Confirm cancel?")) {
+                            cancel(eventObj.id);
+                        }
+                    }
+                },
+                eventRender: function(eventObj, $el) {
+                    $el.popover({
+                        title: eventObj.title,
+                        content: eventObj.description,
+                        trigger: 'hover',
+                        placement: 'top',
+                        container: 'body'
+                    });
+                },
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                aspectRatio: 1.9,
+                defaultDate: new Date(),
+                navLinks: true,
+                editable: true,
+                events: getEvents()
+            });
+        }
+
+        // if user cancel a reservation, call method in Home/CancelReservation
+        function cancel(id) {
+            $.ajax({
+                type: "get",
+                url: "/Home/CancelReservation",
+                data: { "id": id },
+                success: function (data) {
+                    $("#local").html(data);
+                    calendar();
+                }
+            });
+        }
+
+        // get event for every day
+        function getEvents() {
+            var events = [];
+            $(".events").each(function () {
+                var id = $(".id", this).text().trim();
+                var title = $(".title", this).text().trim();
+                var start = $(".start", this).text().trim();
+
+                var event = {
+                    "id": id,
+                    "title": title,
+                    "start": start
+                };
+
+                events.push(event);
+            });
+            return events;
+        }
+    </script>
+}

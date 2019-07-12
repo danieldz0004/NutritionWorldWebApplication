@@ -1,0 +1,34 @@
+﻿@using NutritionWorld.Utils;
+<br />
+<div id="calendar" style="margin:0 auto;width:750px;"></div>
+<div class="row">
+    <h3>MyReservation</h3>
+    <hr />
+    @foreach (var item in ViewBag.Events) 
+    {
+        <div class="col-md-12" onmouseover="javascript:this.style.background='#FBEC88'" onmouseout="javascript:this.style.background='#FFFFFF'">
+            <h4 style="display:inline;">Restaurant:</h4>@item.RestName
+            <h4 style="display:inline;margin-left:30px;">Dinner time:</h4>@Tools.ConvertToShortDate(item.ReserveDate)
+            <h4 style="display:inline;margin-left:30px;">State:</h4>@Tools.GetReservationState(item.ReserveStatus)
+        </div>
+        <hr />
+    }
+</div>
+
+<div style="display:none;">
+    <table id="events">
+        @foreach (var item in ViewBag.Events)
+            {
+            <tr class="events">
+                <td class="id">@item.Id</td>
+                <td class="title">@item.RestName</td>
+                <td class="start">@item.ReserveDate</td>
+            </tr>
+                <tr class="events">
+                    <td class="id">@item.Id</td>
+                    <td class="title">Click Cancel</td>
+                    <td class="start">@item.ReserveDate</td>
+                </tr>
+        }
+    </table>
+</div>

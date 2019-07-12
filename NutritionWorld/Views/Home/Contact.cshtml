@@ -1,0 +1,13 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Contact";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<address>
+    Hello, @ViewBag.FirstName&nbsp;@ViewBag.LastName<br />
+    <br />
+    <strong>Your login account:</strong>@User.Identity.GetUserName()<br />
+
+</address>

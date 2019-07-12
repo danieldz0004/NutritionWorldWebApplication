@@ -1,0 +1,148 @@
+﻿@{
+    ViewBag.Title = "ManageReservation";
+}
+<div id="local">
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/fullcalendar")
+    @Scripts.Render("~/bundles/datepicker")
+    <script>
+        //load calendar view
+        window.onload = function () {
+            $.ajax({
+                type: "get",
+                async: false,
+                url: "/Home/_ManageRes_Partial",
+                success: function (data) {
+                    $("#local").html(data);
+                }
+            });
+        
+            $(".form-control").datepicker({ format: "yyyy/mm/dd" });
+            calendar();
+        }
+
+        // set up calendar
+        function calendar() {
+            $('#calendar').fullCalendar({
+                locale:'au',
+                eventClick: function (eventObj) {
+                    if (eventObj.title == "Click Cancel") {
+                        if (confirm("Confirm cancel?")) {
+                            cancel(eventObj.id);
+                        }
+                    }
+                },
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+
+                defaultDate: new Date(),
+                navLinks: true,
+                editable: true,
+                events: getEvents()
+            });
+        }
+
+        // set up cancel button
+        function cancel(id) {
+            $.ajax({
+                type: "get",
+                url: "/Home/ManagerCancelReservation",
+                data: { "id": id },
+                success: function (data) {
+                    $("#local").html(data);
+                    $(".form-control").datepicker({ format: "yyyy/mm/dd" });
+                    calendar();
+                }
+            });
+        }
+
+        // get an event for a day
+        function getEvents() {
+            
+            var events = [];
+            $(".events").each(function () {
+                var id = $(".id", this).text().trim();
+                var title = $(".title", this).text().trim();
+                var start = $(".start", this).text().trim();
+
+                var event = {
+                    "id": id,
+                    "title": title,
+                    "start": start
+                };
+                events.push(event);
+            });
+            return events;
+        }
+
+        // after click on 'rescheduling' button, show datepicker
+        function rescheduling(el){
+            var i = el.id;
+            var id = i + " div";
+            var st = document.getElementById(id).style.display;
+            if (st == "none") {
+                document.getElementById(id).style.display = "block";
+            }
+            else {
+                document.getElementById(id).style.display = "none";
+            }
+        }
+
+        // after click on submit, call Home/ManagerRescheduling method and reload calendar 
+        function submit(el) {
+            var id = el.id;
+           
+            var o = document.getElementById(id);
+
+            var date = o.value;
+
+            if (date == "") {
+                $("#error").show();
+                return;
+            }
+
+            var getTime = new Date(date).getTime();
+            var today = new Date().getTime();
+            if (getTime < today) {
+                o.value = "";
+                $("#error").show();
+            }
+            else {
+                $("#error").hide();
+                $.ajax({
+                    type: "get",
+                    url: "/Home/ManagerRescheduling",
+                    data: { "id": id, "date": date },
+                    success: function (data) {
+                        $("#local").html(data);
+                        $(".form-control").datepicker({ format: "yyyy/mm/dd" });
+                        calendar();
+                    }
+                });
+            }
+        }
+
+        // admin confirm a reservation, call /Home/Ham method 
+        function ham(id) {
+            if (confirm("Confirm?")) {
+                $.ajax({
+                    type: "get",
+                    url: "/Home/Ham",
+                    data: { "id": id },
+                    success: function (data) {
+                        $("#local").html(data);
+                        $(".form-control").datepicker({ format: "yyyy/mm/dd" });
+                        calendar();
+                    }
+                });
+            }
+        }
+
+    </script>
+}

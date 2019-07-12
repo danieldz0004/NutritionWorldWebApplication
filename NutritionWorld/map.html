@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Display driving directions</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script type="text/javascript" src="Scripts/jquery-3.2.1.js"></script>
+    <script src="Scripts/mapbox-gl.js"></script>
+    <link href="Content/mapbox-gl.css" rel="stylesheet" />
+    <script src="Scripts/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="Content/mapbox-gl-directions.css" type="text/css" />
+    <script>
+        window.onload = function () {
+            mapboxgl.accessToken = "pk.eyJ1IjoibTI1NzQyMjQ5MzEiLCJhIjoiY2ptMWVuam1oMGt3eDNwb2JpM2xnbHNwZyJ9.hJPlwiaXcgiaAPS5QhHPWA";
+            var map = new mapboxgl.Map({
+                container: "map",
+                style: "mapbox://styles/mapbox/streets-v9",
+                center: [102, 36],
+                zoom: 3.5
+            });
+
+            map.addControl(new MapboxDirections({ accessToken: mapboxgl.accessToken }), "top-left");
+            map.addControl(new mapboxgl.NavigationControl());
+        }
+    </script>
+    <!--<style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>-->
+
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>

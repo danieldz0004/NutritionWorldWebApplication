@@ -1,0 +1,42 @@
+﻿@using NutritionWorld.Utils;
+<br />
+<div id="calendar"></div>
+<div class="row">
+    <h3>User's reservation</h3>
+    <hr />
+    @for (int i = 0; i < ViewBag.EventsList.Count; i++)
+    {
+    <div class="col-md-12" onmouseover="javascript:this.style.background='#FBEC88'" onmouseout="javascript:this.style.background='#FFFFFF'">
+        <h4 style="display:inline;">User Name:</h4>@ViewBag.EventsList[i].UserName
+        <h4 style="display:inline;margin-left:30px;">Restaurant:</h4>@ViewBag.EventsList[i].RestName
+        <h4 style="display:inline;margin-left:30px;">Dinner time:</h4>@Tools.ConvertToShortDate(ViewBag.EventsList[i].ReserveDate)
+        <h4 style="display:inline;margin-left:30px;">State:</h4>@Tools.GetReservationState(ViewBag.EventsList[i].ReserveStatus)
+        <input id="@i" type="button" class="btn btn-default" onclick="rescheduling(this)" value="Rescheduling" />
+        <input type="button" class="btn btn-default" onclick="ham(@ViewBag.EventsList[i].Id)" value="Confirm" />
+        <div id="@i div" style="display:none;">
+            <input id="@ViewBag.EventsList[i].Id" type="text" placeholder="More than today" class="form-control" style="float:left;" />
+            <input id="@ViewBag.EventsList[i].Id" class="btn btn-default" type="button" onclick="submit(this)" style="float:left;" value="Submit" />
+            <span id="error" style='color:red;display:none;'>Please choose the correct date.</span>
+        </div>
+    </div>
+        <hr />
+    }
+</div>
+
+<div style="display:none;">
+    <table id="events">
+        @foreach (var item in ViewBag.Events)
+        {
+            <tr class="events">
+                <td class="id">@item.Id</td>
+                <td class="title">@item.UserName @item.RestName</td>
+                <td class="start">@item.ReserveDate</td>
+            </tr>
+            <tr class="events">
+                <td class="id">@item.Id</td>
+                <td class="title">Click Cancel</td>
+                <td class="start">@item.ReserveDate</td>
+            </tr>
+        }
+    </table>
+</div>
